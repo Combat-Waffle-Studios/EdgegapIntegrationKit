@@ -206,7 +206,7 @@ namespace{
 		auto Settings = FEdgegapSettingsDetails::GetInstance()->Settings;
 		UProjectPackagingSettings* PackagingSettings = Cast<UProjectPackagingSettings>(UProjectPackagingSettings::StaticClass()->GetDefaultObject());
 
-		FString PluginDir = IPluginManager::Get().FindPlugin(FString("Edgegap"))->GetBaseDir();
+		FString PluginDir = IPluginManager::Get().FindPlugin(FString("EdgegapIntegrationKit"))->GetBaseDir();
 		FString DockerFilePath = FPaths::Combine(PluginDir, FString("Dockerfile"));
 		FString StartScriptPath = FPaths::Combine(PluginDir, FString("StartServer.sh"));
 		FString ServerBuildPath = PackagingSettings->StagingDirectory.Path;

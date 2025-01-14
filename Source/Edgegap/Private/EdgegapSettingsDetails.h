@@ -102,7 +102,7 @@ public:
 
 	const FSlateBrush* HandleImage() const
 	{
-		FString PluginDir = IPluginManager::Get().FindPlugin(FString("Edgegap"))->GetBaseDir();
+		FString PluginDir = IPluginManager::Get().FindPlugin(FString("EdgegapIntegrationKit"))->GetBaseDir();
 		FString pngfile = FPaths::Combine(FString(EDGEGAP_MODULE_PATH), FString("/Resources/SettingsIcon.png"));
 
 		IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
