@@ -14,7 +14,7 @@ void UEGIK_GetLobby::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL("https://api.edgegap.com/v1/lobbies/" + Var_LobbyName);
 	Request->SetHeader("Authorization", UEGIKBlueprintFunctionLibrary::GetAuthorizationKey());
@@ -24,11 +24,11 @@ void UEGIK_GetLobby::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_LobbyInfo(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }
 
-void UEGIK_GetLobby::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse,
+void UEGIK_GetLobby::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse,
 	bool bArg)
 {
 	if (HttpResponse.IsValid())
@@ -60,5 +60,5 @@ void UEGIK_GetLobby::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TS
 		OnFailure.Broadcast(FEGIK_LobbyInfo(), FEGIK_ErrorStruct(0, "Failed to deserialize response"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }

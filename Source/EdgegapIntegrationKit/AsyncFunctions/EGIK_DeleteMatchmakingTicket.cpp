@@ -11,8 +11,8 @@ UEGIK_DeleteMatchmakingTicket* UEGIK_DeleteMatchmakingTicket::DeleteMatchmakingT
 	return BlueprintNode;
 }
 
-void UEGIK_DeleteMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_DeleteMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if(HttpResponse.IsValid())
 	{
@@ -30,14 +30,14 @@ void UEGIK_DeleteMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest> 
 		OnFailure.Broadcast(FEGIK_ErrorStruct(0, "Failed to process request"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_DeleteMatchmakingTicket::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("DELETE");
 	Request->SetURL(Var_Request.MatchmakingURL + "/tickets/" + Var_Request.TicketId);
 	Request->SetHeader("Content-Type", "application/json");
@@ -47,6 +47,6 @@ void UEGIK_DeleteMatchmakingTicket::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

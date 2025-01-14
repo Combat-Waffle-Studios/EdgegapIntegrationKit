@@ -15,7 +15,7 @@ void UEGIK_AuthorizeUserOnRelaySession::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("POST");
 	Request->SetURL("https://api.edgegap.com/v1/relays/sessions:authorize-user");
 	Request->SetHeader("Authorization", UEGIKBlueprintFunctionLibrary::GetAuthorizationKey());
@@ -32,12 +32,12 @@ void UEGIK_AuthorizeUserOnRelaySession::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_RelaySessionInfo(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }
 
-void UEGIK_AuthorizeUserOnRelaySession::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_AuthorizeUserOnRelaySession::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if (HttpResponse.IsValid())
 	{
@@ -64,5 +64,5 @@ void UEGIK_AuthorizeUserOnRelaySession::OnResponseReceived(TSharedPtr<IHttpReque
 		OnFailure.Broadcast(FEGIK_RelaySessionInfo(), FEGIK_ErrorStruct(0, "Failed to deserialize response"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }

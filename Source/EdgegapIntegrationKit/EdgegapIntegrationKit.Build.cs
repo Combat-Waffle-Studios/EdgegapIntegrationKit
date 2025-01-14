@@ -65,7 +65,7 @@ public class EdgegapIntegrationKit : ModuleRules
         );
 
         // Platform and server check
-        if ((Target.Platform == UnrealTargetPlatform.Linux || Target.Platform == UnrealTargetPlatform.LinuxArm64) && Target.bWithServerCode)
+        if ((Target.Platform == UnrealTargetPlatform.Linux) && Target.bWithServerCode)
         {
             string pluginDir = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", ".."));
             string steamClientDir = Path.Combine(pluginDir, "Extras", "steamclient.so");
@@ -79,9 +79,9 @@ public class EdgegapIntegrationKit : ModuleRules
                 RuntimeDependencies.Add("$(TargetOutputDir)/steamclient.so", steamClientDir);
 
                 // Logic to add to Dockerfile
-                string logicToAdd = $@"
+                string logicToAdd = @"
 RUN mkdir -p /home/ubuntu/.steam/sdk64
-RUN find /app -name steamclient.so -exec cp {{}} /home/ubuntu/.steam/sdk64/steamclient.so \;
+RUN find /app -name steamclient.so -exec cp {} /home/ubuntu/.steam/sdk64/steamclient.so \;
 RUN chmod 755 /home/ubuntu/.steam/sdk64/steamclient.so
 ";
 

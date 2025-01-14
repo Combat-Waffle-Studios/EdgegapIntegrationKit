@@ -31,7 +31,7 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName="Delete Deployment",meta = (BlueprintInternalUseOnly = "true"), Category="Edgegap Integration Kit || Deployments")
 	static UEGIK_DeleteDeployment* DeleteDeployment(FString bRequestId, FString ContainerLogStorage="false");
 
-	void OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg);
+	void OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg);
 	virtual void Activate() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "Edgegap Integration Kit | Deployment")

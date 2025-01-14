@@ -14,7 +14,7 @@ void UEGIK_ListRelaySessions::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL("https://api.edgegap.com/v1/relays/sessions");
 	Request->SetHeader("Authorization", UEGIKBlueprintFunctionLibrary::GetAuthorizationKey());
@@ -24,12 +24,12 @@ void UEGIK_ListRelaySessions::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_ListRelaySessionsOutput(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }
 
-void UEGIK_ListRelaySessions::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_ListRelaySessions::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if (HttpResponse.IsValid())
 	{

@@ -19,7 +19,7 @@ public:
 	static UEGIK_RemoveUseronRelaySession* RemoveUseronRelaySession(FString SessionId, FString AuthorizationToken);
 
 	virtual void Activate() override;
-	void OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg);
+	void OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg);
 
 	UPROPERTY(BlueprintAssignable, Category = "Edgegap Integration Kit | Relay Sessions")
 	FOnRemoveUseronRelaySession OnSuccess;

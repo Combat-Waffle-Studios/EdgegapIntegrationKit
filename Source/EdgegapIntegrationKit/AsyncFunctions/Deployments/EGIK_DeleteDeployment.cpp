@@ -11,8 +11,8 @@ UEGIK_DeleteDeployment* UEGIK_DeleteDeployment::DeleteDeployment(FString bReques
 	return UEGIK_DeleteDeploymentObject;
 }
 
-void UEGIK_DeleteDeployment::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-                                                TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_DeleteDeployment::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+                                                TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if (HttpResponse.IsValid())
 	{
@@ -45,14 +45,14 @@ void UEGIK_DeleteDeployment::OnResponseReceived(TSharedPtr<IHttpRequest> HttpReq
 		OnFailure.Broadcast(FEGIK_DeleteDeploymentResponse(), FEGIK_ErrorStruct(0, "Failed to deserialize response"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_DeleteDeployment::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("DELETE");
 	Request->SetURL("https://api.edgegap.com/v1/stop/" + Var_bRequestId);
 	Request->SetHeader("Content-Type", "application/json");
@@ -62,6 +62,6 @@ void UEGIK_DeleteDeployment::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_DeleteDeploymentResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

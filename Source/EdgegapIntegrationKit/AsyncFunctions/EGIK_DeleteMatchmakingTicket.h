@@ -35,7 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Edgegap Integration Kit | Matchmaking")
 	static UEGIK_DeleteMatchmakingTicket* DeleteMatchmakingTicket(FEGIK_DeleteMatchmakingRequest Request);
 
-	void OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg);
+	void OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg);
 	virtual void Activate() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "Edgegap Integration Kit | Matchmaking")

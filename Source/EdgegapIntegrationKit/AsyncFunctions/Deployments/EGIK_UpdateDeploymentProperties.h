@@ -30,7 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Edgegap Integration Kit | Deployment")
 	static UEGIK_UpdateDeploymentProperties* UpdateDeploymentProperties(FEGIK_UpdateDeploymentPropertiesRequest Request);
 
-	void OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg);
+	void OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg);
 	virtual void Activate() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "Edgegap Integration Kit | Deployment")

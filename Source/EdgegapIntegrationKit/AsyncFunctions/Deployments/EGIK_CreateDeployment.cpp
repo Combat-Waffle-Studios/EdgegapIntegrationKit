@@ -10,7 +10,7 @@ UEGIK_CreateDeployment* UEGIK_CreateDeployment::CreateDeployment(FEGIK_CreateDep
 	return BlueprintNode;
 }
 
-void UEGIK_CreateDeployment::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_CreateDeployment::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if(HttpResponse.IsValid())
 	{
@@ -49,7 +49,7 @@ void UEGIK_CreateDeployment::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("POST");
 	Request->SetURL("https://api.edgegap.com/v1/deploy");
 	Request->SetHeader("Content-Type", "application/json");
@@ -166,6 +166,6 @@ void UEGIK_CreateDeployment::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_CreateDeploymentResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

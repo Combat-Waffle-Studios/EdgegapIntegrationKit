@@ -11,7 +11,7 @@ UEGIK_GetLocationBeacons* UEGIK_GetLocationBeacons::GetLocationBeacons(FString M
 	return BlueprintNode;
 }
 
-void UEGIK_GetLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_GetLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	FEGIK_LocationBeaconResponse Response;
 	if(HttpResponse.IsValid())
@@ -57,14 +57,14 @@ void UEGIK_GetLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest> HttpR
 		OnFailure.Broadcast(FEGIK_LocationBeaconResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_GetLocationBeacons::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL(Var_MatchmakingUrl + "/locations/beacons");
 	Request->SetHeader("Content-Type", "application/json");
@@ -74,6 +74,6 @@ void UEGIK_GetLocationBeacons::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_LocationBeaconResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

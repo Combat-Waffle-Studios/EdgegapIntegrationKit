@@ -35,7 +35,7 @@ public:
 	static UEGIK_CreateRelaySession* CreateRelaySession(FEGIK_CreateRelaySessionInput Input);
 
 	virtual void Activate() override;
-	void OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg);
+	void OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg);
 
 	UPROPERTY(BlueprintAssignable, Category = "Edgegap Integration Kit | Relay Sessions")
 	FOnCreateRelaySession OnSuccess;

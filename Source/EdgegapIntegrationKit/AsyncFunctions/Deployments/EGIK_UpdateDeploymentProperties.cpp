@@ -11,8 +11,8 @@ UEGIK_UpdateDeploymentProperties* UEGIK_UpdateDeploymentProperties::UpdateDeploy
 	return Node;
 }
 
-void UEGIK_UpdateDeploymentProperties::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_UpdateDeploymentProperties::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if (HttpResponse.IsValid())
 	{
@@ -30,14 +30,14 @@ void UEGIK_UpdateDeploymentProperties::OnResponseReceived(TSharedPtr<IHttpReques
 		OnFailure.Broadcast(Var_Request.bIsJoinableBySession, FEGIK_ErrorStruct(0, "Failed to deserialize response"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_UpdateDeploymentProperties::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("PATCH");
 	Request->SetURL("https://api.edgegap.com/v1/deployments/" + Var_Request.RequestId);
 	Request->SetHeader("Content-Type", "application/json");
@@ -47,6 +47,6 @@ void UEGIK_UpdateDeploymentProperties::Activate()
 	{
 		OnFailure.Broadcast(false, FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

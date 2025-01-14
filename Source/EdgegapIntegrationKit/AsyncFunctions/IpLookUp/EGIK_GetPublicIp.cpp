@@ -9,7 +9,7 @@ UEGIK_GetPublicIp* UEGIK_GetPublicIp::GetIpInformation()
 	return Node;
 }
 
-void UEGIK_GetPublicIp::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse,
+void UEGIK_GetPublicIp::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse,
 	bool bArg)
 {
 	if (HttpResponse.IsValid())
@@ -39,14 +39,14 @@ void UEGIK_GetPublicIp::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
 		OnFailure.Broadcast("", FEGIK_ErrorStruct(0, "Failed to deserialize response"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_GetPublicIp::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL("https://api.edgegap.com/v1/ip");
 	Request->SetHeader("Content-Type", "application/json");
@@ -56,6 +56,6 @@ void UEGIK_GetPublicIp::Activate()
 	{
 		OnFailure.Broadcast("", FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

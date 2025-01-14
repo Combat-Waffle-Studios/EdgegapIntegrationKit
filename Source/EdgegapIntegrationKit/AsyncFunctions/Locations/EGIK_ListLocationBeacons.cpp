@@ -8,8 +8,8 @@ UEGIK_ListLocationBeacons* UEGIK_ListLocationBeacons::ListLocationBeacons()
 	return BlueprintNode;
 }
 
-void UEGIK_ListLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_ListLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	TArray<FEGIK_ListLocationBeaconsResponse> LocationBeacons;
 	if (HttpResponse.IsValid())
@@ -55,14 +55,14 @@ void UEGIK_ListLocationBeacons::OnResponseReceived(TSharedPtr<IHttpRequest> Http
 		OnFailure.Broadcast(TArray<FEGIK_ListLocationBeaconsResponse>(), FEGIK_ErrorStruct(0, "Failed to process request"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
 
 void UEGIK_ListLocationBeacons::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL("https://api.edgegap.com/v1/locations/beacons");
 	Request->SetHeader("Authorization", UEGIKBlueprintFunctionLibrary::GetAuthorizationKey());
@@ -71,6 +71,6 @@ void UEGIK_ListLocationBeacons::Activate()
 	{
 		OnFailure.Broadcast(TArray<FEGIK_ListLocationBeaconsResponse>(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

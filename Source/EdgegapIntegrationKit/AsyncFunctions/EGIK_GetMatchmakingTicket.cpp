@@ -14,7 +14,7 @@ UEGIK_GetMatchmakingTicket* UEGIK_GetMatchmakingTicket::GetMatchmakingTicket(FEG
 	return BlueprintNode;
 }
 
-void UEGIK_GetMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest, TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_GetMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest, TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	FEGIK_MatchmakingResponse Response;
 	if(HttpResponse.IsValid())
@@ -71,7 +71,7 @@ void UEGIK_GetMatchmakingTicket::Activate()
 	Super::Activate();
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL(Var_MatchmakingRequest.MatchmakingURL + "/tickets/" + Var_MatchmakingRequest.TicketId);
 	Request->SetHeader("Content-Type", "application/json");
@@ -81,6 +81,6 @@ void UEGIK_GetMatchmakingTicket::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_MatchmakingResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }

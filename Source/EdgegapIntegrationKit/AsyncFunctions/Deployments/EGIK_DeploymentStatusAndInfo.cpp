@@ -14,7 +14,7 @@ void UEGIK_DeploymentStatusAndInfo::Activate()
 {
 	Super::Activate();
 	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
 	Request->SetURL("https://api.edgegap.com/v1/status/" + Var_RequestId);
 	Request->SetHeader("Content-Type", "application/json");
@@ -24,12 +24,12 @@ void UEGIK_DeploymentStatusAndInfo::Activate()
 	{
 		OnFailure.Broadcast(FEGIK_DeploymentStatusAndInfoResponse(), FEGIK_ErrorStruct(0, "Failed to process request"));
 		SetReadyToDestroy();
-		MarkAsGarbage();
+		MarkPendingKill();
 	}
 }
 
-void UEGIK_DeploymentStatusAndInfo::OnResponseReceived(TSharedPtr<IHttpRequest> HttpRequest,
-	TSharedPtr<IHttpResponse> HttpResponse, bool bArg)
+void UEGIK_DeploymentStatusAndInfo::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> HttpRequest,
+	TSharedPtr<IHttpResponse, ESPMode::ThreadSafe> HttpResponse, bool bArg)
 {
 	if(HttpResponse.IsValid())
 	{
@@ -134,5 +134,5 @@ void UEGIK_DeploymentStatusAndInfo::OnResponseReceived(TSharedPtr<IHttpRequest> 
 		OnFailure.Broadcast(FEGIK_DeploymentStatusAndInfoResponse(), FEGIK_ErrorStruct(0, "Failed to connect, likely the EdgeGap Server is down or this URL has been deprecated"));
 	}
 	SetReadyToDestroy();
-	MarkAsGarbage();
+	MarkPendingKill();
 }
