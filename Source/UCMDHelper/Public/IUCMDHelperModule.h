@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Betide Studio. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -43,6 +43,6 @@ public:
 	/** Creates and starts up a UAT Task
 	  * @param	ResultLocation	The folder where the result of the task will be stored  
 	  */
-	virtual void CreateUcmdTask(const FString& CommandLine, const FText& PlatformDisplayName, const FText& TaskName, const FText& TaskShortName, const FSlateBrush* TaskIcon, bool PowerShell, UcmdTaskResultCallack ResultCallback = UcmdTaskResultCallack(), const FString& ResultLocation = FString()) = 0;
+	virtual void CreateUcmdTask(const FString& CommandLine, const FText& PlatformDisplayName, const FText& TaskName, const FText &TaskShortName, const FSlateBrush* TaskIcon, bool PowerShell, UcmdTaskResultCallack ResultCallback = UcmdTaskResultCallack(), const FString& ResultLocation = FString()) = 0;
 };
 

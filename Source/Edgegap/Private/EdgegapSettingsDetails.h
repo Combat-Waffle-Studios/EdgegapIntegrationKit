@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Betide Studio. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -14,13 +14,8 @@
 #include "EdgegapSettings.h"
 #include "Misc/App.h"
 #include "Interfaces/IPluginManager.h"
-#include "Interfaces/ITargetPlatform.h"
-#include "Interfaces/ITargetPlatformModule.h"
-#include "DetailWidgetRow.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(EdgegapLog, Log, All);
-
-DECLARE_DELEGATE_OneParam(FOnIsTokenVerifiedChanged, bool);
 
 class UcmdTaskResultCallack;
 
@@ -36,7 +31,7 @@ public:
 			this->ClearWidgets();
 			this->RebuildList();
 			this->ItemsSource = InListItemsSource;
-		});
+			});
 		
 		TArray<ItemType> x = (*this->ItemsSource);
 	}
@@ -64,30 +59,7 @@ public:
 };
 
 typedef SCustomListView< TSharedPtr< struct FDeploymentStatusListItem > > SDeploymentStatusListItemListView;
-typedef TSharedPtr<IImageWrapper> IImageWrapperPtr;
-typedef PlatformInfo::FTargetPlatformInfo FPlatformInfo;
 
-
-class SImagePreview : public SCompoundWidget
-{
-public:
-	SLATE_BEGIN_ARGS(SImagePreview) {}
-	SLATE_END_ARGS()
-
-		void Construct(const FArguments& InArgs, FString ImagePath)
-	{
-		// Load the image from the specified path
-		FSlateBrush ImageBrush;
-		ImageBrush.SetResourceObject(LoadObject<UObject>(nullptr, *ImagePath));
-
-		// Create an image widget to display the loaded image
-		ChildSlot
-			[
-				SNew(SImage)
-				.Image(&ImageBrush)
-			];
-	}
-};
 
 class FEdgegapSettingsDetails : public IDetailCustomization
 {
@@ -95,57 +67,45 @@ public:
 	static TSharedRef<IDetailCustomization> MakeInstance();
 
 	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
+	
+	void Add_API_UI(IDetailLayoutBuilder& DetailBuilder);
+	void Add_Documentation_UI(IDetailLayoutBuilder& DetailBuilder);
+	void AddAppInfoUI(IDetailLayoutBuilder& DetailBuilder);
+	void AddContainerUI(IDetailLayoutBuilder& DetailBuilder);
+	void AddDeploymentStatusTableUI(IDetailLayoutBuilder& DetailBuilder);
+	void AddDeployUI(IDetailLayoutBuilder& DetailBuilder);
 
-	static void PackageProject(const FName IniPlatformName);
+	static void PackageProject(const FName InPlatformInfoName);
 
 	static void SaveAll();
-	static bool CheckDockerRunning();
 	static void AddMessageLog(const FText& Text, const FText& Detail, const FString& TutorialLink, const FString& DocumentationLink);
 	static void Containerize(FString DockerFilePath, FString StartScriptPath, FString ServerBuildPath, FString RegistryURL, FString ImageRepository, FString Tag, FString PrivateUsername, FString PrivateToken);
 	static void PushContainer(FString ImageName, FString RegistryURL, FString PrivateUsername, FString PrivateToken, bool LoggedIn=false);
 	static void DockerLogin(FString RegistryURL, FString PrivateUsername, FString PrivateToken);
-
-	void Request_VerifyToken();
-	void Request_CreateApplication(TSharedPtr<SButton> InCreateApplication_SBtn);
-
-	void Request_RegistryCredentials();
+	static void CreateApp(FString AppName, FString ImagePath, FString API_key);
+	static void onCreateAppComplete(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
 
 	static void CreateVersion(FString AppName, FString VersionName, FString API_key, FString RegistryURL, FString ImageRepository, FString Tag, FString PrivateUsername, FString PrivateToken);
 	static void onCreateVersionComplete(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
 
-	void Request_DeployApp(FString AppName, FString VersionName, FString API_key, TSharedPtr<SButton> InCreateNewDeployment_SBtn);
+	static void DeployApp(FString AppName, FString VersionName, FString API_key);
+	static void onDeployApp(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
 
-	void Request_GetDeploymentsInfo(FString API_key, TSharedPtr<SButton> InRefreshBtn);
-	static void Callback_GetDeploymentsInfo(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
+	static void GetDeploymentsInfo(FString API_key);
+	static void onGetDeploymentsInfo(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
 
-	void Request_StopDeploy(FString RequestID, FString API_key);
+	static void StopDeploy(FString RequestID, FString API_key);
+	static void onStopDeploy(FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bWasSuccessful);
 
 	static FString _ImageName, _RegistryURL, _PrivateUsername, _PrivateToken, _API_key;
 	static FString _AppName, _VersionName;
-	static FString _RecentTag;
 
-	FString GetApplicationImageFilename(const bool bInIsGameOverride = false)
+	const FSlateBrush* HandleImage() const
 	{
-		const FString& PlatformName = FModuleManager::GetModuleChecked<ITargetPlatformModule>("WindowsTargetPlatform").GetTargetPlatforms()[0]->PlatformName();
-
-		FString Filename = FString(EDGEGAP_MODULE_PATH) / FString("Resources/ApplicationImage.png");
-		return FPaths::ConvertRelativePathToFull(Filename);
-	}
-
-	FString GetBannerImageFilePath()
-	{
-		const FString& PlatformName = FModuleManager::GetModuleChecked<ITargetPlatformModule>("WindowsTargetPlatform").GetTargetPlatforms()[0]->PlatformName();
-
-		FString Filename = FString(EDGEGAP_MODULE_PATH) / FString("Resources/BannerImage.png");
-		return FPaths::ConvertRelativePathToFull(Filename);
-	}
-
-	const FSlateBrush* HandleImage(FString& InPath) const
-	{
-		FString pngfile = InPath;
+		FString PluginDir = IPluginManager::Get().FindPlugin(FString("Edgegap"))->GetBaseDir();
+		FString pngfile = FPaths::Combine(FString(EDGEGAP_MODULE_PATH), FString("/Resources/SettingsIcon.png"));
 
 		IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-
 		// Note: PNG format.  Other formats are supported
 		IImageWrapperPtr ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
 
@@ -158,9 +118,9 @@ public:
 				if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
 				{
 					UTexture2D* mytex = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
-					void* TextureData = mytex->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+					void* TextureData = mytex->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 					FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
-					mytex->GetPlatformData()->Mips[0].BulkData.Unlock();
+					mytex->PlatformData->Mips[0].BulkData.Unlock();
 
 					// Update the rendering resource from data.
 					mytex->UpdateResource();
@@ -173,80 +133,11 @@ public:
 		}
 		return new FSlateBrush();
 	}
-	FSlateBrush* LoadImage(const FString& InImagePath);
-
-	const FSlateBrush* GetImageBrush() const
-	{
-		return SavedImageBrush.IsValid() ? SavedImageBrush.Get() : FAppStyle::Get().GetBrush("ExternalImagePicker.BlankImage");
-	}
-
-	static FString MakeImageName(const FString InRegistry, const FString InImageRepository, const FString InAppName, const FString InTag)
-	{
-		const FString ImageName = FString::Printf(TEXT("%s/%s/%s:%s"), *InRegistry, *InImageRepository, *InAppName.ToLower(), *InTag);
-		return ImageName;
-	}
-
-	static FString ExpandSequencePathTokens(const FString& InPath)
-	{
-		return InPath
-			.Replace(TEXT("{engine_dir}"), *FPaths::ConvertRelativePathToFull(FPaths::EngineDir()))
-			.Replace(TEXT("{project_dir}"), *FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()))
-			;
-	}
-
-	static FString SanitizeTokenizedSequencePath(const FString& InPath)
-	{
-		FString SanitizedPickedPath = InPath.TrimStartAndEnd().Replace(TEXT("\""), TEXT(""));
-
-		const FString ProjectAbsolutePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
-
-		// Replace supported tokens
-		FString ExpandedPath = ExpandSequencePathTokens(SanitizedPickedPath);
-
-		// Relative paths are always w.r.t. the project root.
-		if (FPaths::IsRelative(ExpandedPath))
-		{
-			ExpandedPath = FPaths::Combine(ProjectAbsolutePath, SanitizedPickedPath);
-		}
-
-		// Chop trailing file path, in case the user picked a file instead of a folder
-		if (FPaths::FileExists(ExpandedPath))
-		{
-			ExpandedPath = FPaths::GetPath(ExpandedPath);
-			SanitizedPickedPath = FPaths::GetPath(SanitizedPickedPath);
-		}
-
-		// If the user picked the absolute path of a directory that is inside the project, use relative path.
-		// Unless the user has a token in the beginning.
-		if (!InPath.Len() || InPath[0] != '{') // '{' indicates that the path begins with a token
-		{
-			FString PathRelativeToProject;
-
-			if (IsPathUnderBasePath(ExpandedPath, ProjectAbsolutePath, PathRelativeToProject))
-			{
-				SanitizedPickedPath = PathRelativeToProject;
-			}
-		}
-
-		return SanitizedPickedPath;
-	}
-
-	static bool IsPathUnderBasePath(const FString& InPath, const FString& InBasePath, FString& OutRelativePath)
-	{
-		OutRelativePath = InPath;
-
-		return
-			FPaths::MakePathRelativeTo(OutRelativePath, *InBasePath)
-			&& !OutRelativePath.StartsWith(TEXT(".."));
-	}
 
 	TWeakObjectPtr<UEdgegapSettings> Settings;
-	TSharedRef<ITableRow> HandleGenerateDeployStatusWidget(TSharedPtr<FDeploymentStatusListItem> InItem, const TSharedRef<STableViewBase>& InOwnerTable);
+	TSharedRef<ITableRow> HandleGenerateDeployStatusWidget(TSharedPtr<FDeploymentStatusListItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 	TSharedPtr<SDeploymentStatusListItemListView> DeploymentStatusListItemListView;
-	TSharedPtr<SButton> CreateApplication_SBtn, CreateBuilAndPushBtn_SBtn, DeploymentStatuRefresh_SBtn, StartDeployButton, CreateNewDeployment_SBtn;
-
-	FDetailWidgetRow* AppNameWidgetRow;
-	FDetailWidgetRow* AppImageWidgetRow;
+	TSharedPtr<SButton> DeploymentStatuRefreshButton, StartDeployButton, StartUploadyButton;
 
 	UPROPERTY()
 	static TArray< TSharedPtr< FDeploymentStatusListItem > >	DeployStatusOverrideListSource;
@@ -255,26 +146,6 @@ public:
 	{
 		return Singelton;
 	}
-
-protected:
-	TSharedPtr<SImage> ImageWidget;
-	TSharedPtr<IPropertyHandle> ImagePathHandle;
-
-private:
-	/** Delegate handler for before an icon is copied */
-	bool HandlePreExternalIconCopy(const FString& InChosenImage);
-
-	/** Delegate handler to get the path to start picking from */
-	FString GetPickerPath();
-
-	/** Delegate handler to set the path to start picking from */
-	bool HandlePostExternalIconCopy(const FString& InChosenImage);
-
-public:
-	FOnIsTokenVerifiedChanged OnIsTokenVerifiedChanged;
-
-private:
-	TSharedPtr<FSlateDynamicImageBrush> SavedImageBrush;
 
 private:
 	static FEdgegapSettingsDetails* Singelton;

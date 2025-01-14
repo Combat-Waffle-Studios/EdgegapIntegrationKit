@@ -1,99 +1,53 @@
-// Copyright (c) 2024 Betide Studio. All Rights Reserved.
-
 #pragma once
 
+#include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/Object.h"
-#include "APIToken/APITokenSettings.h"
-#include "Engine/DeveloperSettings.h"
 #include "EdgegapSettings.generated.h"
 
-UCLASS(config=EditorPerProjectUserSettings, defaultconfig, meta = (DisplayName = "Edgegap Plugin"))
-class UEdgegapSettings : public UDeveloperSettings
+
+UCLASS(config = Edgegap, defaultconfig)
+class UEdgegapSettings : public UObject
 {
 	GENERATED_BODY()
 
 public:
+
 	UEdgegapSettings();
 
 	//~ Begin UObject Interface
-#if WITH_EDITOR
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnUpdateSettings, UEdgegapSettings const*);
-	static FOnUpdateSettings OnSettingsChange;
-
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent);
-#endif
 	//~ End UObject Interface
 
-	UPROPERTY(EditAnywhere, Category = "API Key", DisplayName = "Authorization Key")
-	FString AuthorizationKey;
 
-	UPROPERTY(Config, EditAnywhere, Category = "API Key", DisplayName = "Deployer Key")
-	FAPITokenSettings APIToken;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Docker Settings", DisplayName = "Docker Path")
-	FString DockerPath = "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe";
-
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Application Name")
+	UPROPERTY(Config, EditAnywhere, Category = "Application Info")
 	FText ApplicationName;
 
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Application Image")
+	/* Path to app image */
+	UPROPERTY(Config, EditAnywhere, Category = "Application Info")
 	FFilePath ImagePath;
 
-	//Units of vCPU needed (1024 = 1vcpu)
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Required CPU")
-	int32 RequiredCPU = 1024;
 
-	//Units of memory in MB needed (1024 = 1GB)
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Required Memory")
-	int32 RequiredMemory = 1024;
-
-	//Units of GPU needed (1024 = 1 GPU)
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Required GPU")
-	int32 RequiredGPU = 0;
-
-	//The Max duration of the game in minute. 0 means forever.
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Max Duration")
-	int32 MaxDuration = 0;
-
-	//Estimated maximum time in seconds to deploy, after this time we will consider it not working and retry.
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Estimated Maximum Deploy Time")
-	int32 EstimatedDeployTime = 120;
-
-	//Entrypoint/Command override of your Container - Leave empty to use the default one
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Entrypoint Override")
-	FString EntrypointOverride;
-	
-	//The Arguments to pass to the command
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info|Extra Settings", Meta = (EditCondition = "bIsTokenVerified"), DisplayName = "Command Arguments")
-	FString CommandArguments;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Container Registry")
-	bool bUseCustomContainerRegistry = false;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Container Registry", Meta = (EditCondition = "bUseCustomContainerRegistry"), DisplayName = "Registry URL")
-	FString Registry;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Container Registry", Meta = (EditCondition = "bUseCustomContainerRegistry"), DisplayName = "Repository")
-	FString ImageRepository;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Container Registry", Meta = (EditCondition = "bUseCustomContainerRegistry"), DisplayName = "Username")
-	FString PrivateRegistryUsername;
-
-	UPROPERTY(Config, EditAnywhere, Category = "Container Registry", Meta = (EditCondition = "bUseCustomContainerRegistry"), DisplayName = "Token")
-	FString PrivateRegistryToken;
-
-	UPROPERTY(Config)
-	FString Tag;
-
-	UPROPERTY(Config)
+	UPROPERTY(Config, EditAnywhere, Category = "Version")
 	FString VersionName;
 
-	//@TODO: Check the best way to handle verification and toggle edit conditions accordingly
-	UPROPERTY(Config, EditAnywhere, Category = "Application Info")
-	bool bIsTokenVerified = true;
-};
+	UPROPERTY(Config, EditAnywhere, Category = "Container")
+	FString Registry;
 
-#if UE_ENABLE_INCLUDE_ORDER_DEPRECATED_IN_5_2
-#include "CoreMinimal.h"
-#endif
+	UPROPERTY(Config, EditAnywhere, Category = "Container")
+	FString ImageRepository;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Container")
+	FString Tag;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Container")
+	FString PrivateRegistryUsername;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Container")
+	FString PrivateRegistryToken;
+
+	UPROPERTY(Config, EditAnywhere, Category = "API", DisplayName = "API Token")
+	FString API_Key;
+
+
+};

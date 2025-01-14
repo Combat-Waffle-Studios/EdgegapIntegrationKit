@@ -1,5 +1,3 @@
-// Copyright (c) 2024 Betide Studio. All Rights Reserved.
-
 using UnrealBuildTool;
 using System.IO;
 
@@ -56,31 +54,7 @@ public class Edgegap : ModuleRules
                 "Json",
                 "JsonUtilities",
                 "ImageWrapper",
-                "SharedSettingsWidgets",
-                "ApplicationCore",
-                "DeveloperToolSettings",
-                "EngineSettings",
-                "InputCore",
-                "RHI",
-                "RenderCore",
-                "Slate",
-                "SlateCore",
-                "TargetPlatform",
-                "DesktopPlatform",
-                "WorkspaceMenuStructure",
-                "MessageLog",
-                 "Projects",
-                 "ToolMenus",
-                 "LauncherServices",
-                "SourceControl",
-                "EditorStyle",
-                "TurnkeyIO",
-                "UnrealEd",
-                "UATHelper",
-                "SettingsEditor",
-                "Zen",
-                "DeveloperSettings",
-                "DesktopWidgets"
+                "SharedSettingsWidgets"
             }
         );
 
@@ -93,26 +67,12 @@ public class Edgegap : ModuleRules
                 "LevelEditor",
                 "Settings",
                 "SourceCodeAccess",
+                "Toolbox",
                 "LocalizationDashboard",
                 "UCMDHelper",
                 "Projects"
             }
         );
-
-        PrivateIncludePathModuleNames.AddRange(
-            new string[] {
-                    "AssetTools",
-                    "DesktopPlatform",
-                    "GameProjectGeneration",
-                    "ProjectTargetPlatformEditor",
-                    "LevelEditor",
-                    "Settings",
-                    "SourceCodeAccess",
-                    "LocalizationDashboard",
-                     "MainFrame",
-            }
-        );
-
         System.Console.WriteLine("ModulePath here: ");
         System.Console.WriteLine(ModulePath);
         PublicDefinitions.Add("EDGEGAP_MODULE_PATH=\""+ ModulePath.Replace("\\", "/")+"\"");
