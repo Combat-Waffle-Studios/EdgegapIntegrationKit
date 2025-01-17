@@ -24,6 +24,9 @@ struct FEGIK_PortStruct
 
 	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Assignment")
 	FString Protocol = "";
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Assignment")
+	FString Link = "";
 }; 
 
 
@@ -146,6 +149,7 @@ private:
         GamePort.InternalPort = 0;
         GamePort.ExternalPort = 0;
         GamePort.Protocol = "";
+        GamePort.Link = "";
         Location.City = "";
         Location.Country = "";
         Location.Continent = "";
@@ -172,6 +176,7 @@ private:
                 (*GamePortObject)->TryGetNumberField(TEXT("internal"), GamePort.InternalPort);
                 (*GamePortObject)->TryGetNumberField(TEXT("external"), GamePort.ExternalPort);
                 (*GamePortObject)->TryGetStringField(TEXT("protocol"), GamePort.Protocol);
+                (*GamePortObject)->TryGetStringField(TEXT("link"), GamePort.Link);
             }
         }
 
@@ -186,6 +191,16 @@ private:
             (*LocationObject)->TryGetStringField(TEXT("timezone"), Location.Timezone);
         }
     }
+};
+
+UENUM(BlueprintType)
+enum EGIK_GOT_MatchmakingTicketStatus
+{
+	SEARCHING UMETA(DisplayName = "Searching"),
+	TEAM_FOUND UMETA(DisplayName = "Team found"),
+	MATCH_FOUND UMETA(DisplayName = "Match found"),
+	HOST_ASSIGNED UMETA(DisplayName = "Host assigned"),
+	CANCELLED UMETA(DisplayName = "Cancelled")
 };
 
 USTRUCT(BlueprintType)
@@ -213,6 +228,43 @@ struct FEGIK_CreateMatchmakingStruct
 };
 
 USTRUCT(BlueprintType)
+struct FGOT_GroupAttributesStruct
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString PlayerId = "";
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	TMap<FString,FString> Attributes;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	TMap<FString,float> Beacons;
+
+};
+
+USTRUCT(BlueprintType)
+struct FGOT_CreateGroupMatchmakingStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	TArray<FGOT_GroupAttributesStruct> PlayerAttributes;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString PlayerIp = "";
+		
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString Profile = "";
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString MatchmakingURL;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString AuthToken;
+};
+
+USTRUCT(BlueprintType)
 struct FEGIK_MatchmakingResponse
 {
     GENERATED_BODY()
@@ -220,14 +272,44 @@ struct FEGIK_MatchmakingResponse
     UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
     FString TicketId;
 
-    UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
-    FString GameProfile;
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString GameProfile;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	FString GroupId;
 
     UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
     FEGIK_AssignmentStruct Assignment;
 
     UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
     FDateTime CreatedAt;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Matchmaking")
+	TEnumAsByte<EGIK_GOT_MatchmakingTicketStatus> Status;
+
+    void SetStatusByString(const FString& StatusString)
+	{
+		if (StatusString == "SEARCHING")
+		{
+			Status = SEARCHING;
+		}
+    	else if (StatusString == "TEAM_FOUND")
+    	{
+    		Status = TEAM_FOUND;
+    	}
+    	else if (StatusString == "MATCH_FOUND")
+    	{
+			Status = MATCH_FOUND;
+    	}
+    	else if (StatusString == "HOST_ASSIGNED")
+    	{
+			Status = HOST_ASSIGNED;
+    	}
+    	else if (StatusString == "CANCELLED")
+    	{
+			Status = CANCELLED;
+		}
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -841,6 +923,32 @@ struct FEGIK_RelaySessionInfo
 				}
 			}
 		}
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FIPPortInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Latency")
+	FString IPAddress;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Latency")
+	int32 Port;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Edgegap Integration Kit | Latency")
+	FString LocationName;  // New field to hold the location name
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Edgegap Integration Kit | Latency")
+	float Latency;  // To store the calculated latency
+
+	FIPPortInfo(): Port(0), Latency(0)
+	{
+	}
+
+	FIPPortInfo(const FString& InIPAddress, int32 InPort) : IPAddress(InIPAddress), Port(InPort), Latency(0)
+	{
 	}
 };
 

@@ -21,7 +21,7 @@ void UEGIK_GetPublicIp::OnResponseReceived(TSharedPtr<IHttpRequest, ESPMode::Thr
 			TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(HttpResponse->GetContentAsString());
 			if (FJsonSerializer::Deserialize(Reader, JsonObject))
 			{
-				IpAddress = JsonObject->GetStringField(TEXT("public_ip"));
+				IpAddress = JsonObject->GetStringField(TEXT("ip"));
 				OnSuccess.Broadcast(IpAddress, FEGIK_ErrorStruct());
 			}
 			else
@@ -48,9 +48,8 @@ void UEGIK_GetPublicIp::Activate()
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = Http->CreateRequest();
 	Request->SetVerb("GET");
-	Request->SetURL("https://api.edgegap.com/v1/ip");
+	Request->SetURL("https://api.ipify.org?format=json");
 	Request->SetHeader("Content-Type", "application/json");
-	Request->SetHeader("Authorization", UEGIKBlueprintFunctionLibrary::GetAuthorizationKey());
 	Request->OnProcessRequestComplete().BindUObject(this, &UEGIK_GetPublicIp::OnResponseReceived);
 	if (!Request->ProcessRequest())
 	{

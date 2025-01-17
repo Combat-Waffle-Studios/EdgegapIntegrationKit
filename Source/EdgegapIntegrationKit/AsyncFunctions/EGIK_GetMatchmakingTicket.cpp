@@ -26,7 +26,7 @@ void UEGIK_GetMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest, ESP
 			if(FJsonSerializer::Deserialize(Reader, JsonObject))
 			{
 				Response.TicketId = JsonObject->GetStringField(TEXT("id"));
-				Response.GameProfile = JsonObject->GetStringField(TEXT("game_profile"));
+				Response.GameProfile = JsonObject->GetStringField(TEXT("profile"));
 				FDateTime::ParseIso8601(*JsonObject->GetStringField(TEXT("created_at")), Response.CreatedAt);
 				const TSharedPtr<FJsonObject>* AssignmentObject;
 				if (JsonObject->HasTypedField<EJson::Object>(TEXT("assignment")))
@@ -48,6 +48,10 @@ void UEGIK_GetMatchmakingTicket::OnResponseReceived(TSharedPtr<IHttpRequest, ESP
 					// The assignment field is either null or missing, so handle it as null
 					Response.Assignment = FEGIK_AssignmentStruct("null");
 				}
+				
+				Response.GroupId = JsonObject->GetStringField(TEXT("group_id"));
+				Response.SetStatusByString(JsonObject->GetStringField(TEXT("status")));
+				
 				OnSuccess.Broadcast(Response, FEGIK_ErrorStruct());
 			}
 			else
